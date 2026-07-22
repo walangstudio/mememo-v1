@@ -13,7 +13,12 @@ import subprocess
 
 import pytest
 
-from mememo.core.git_manager import _GIT_SAFE_ENV, _GIT_SAFE_FLAGS, GitManager
+from mememo.core.git_manager import (
+    _GIT_SAFE_ENV,
+    _GIT_SAFE_FLAGS,
+    _NO_WINDOW,
+    GitManager,
+)
 
 
 @pytest.fixture
@@ -49,6 +54,9 @@ async def test_exec_git_detaches_stdin_and_hardens_env(captured_run):
     assert kw["env"].get("GIT_TERMINAL_PROMPT") == "0"
     # timeout preserved so a genuinely slow git still can't hang init.
     assert kw["timeout"] == 30
+    # MCP hosts have no console of their own, so git must not be allowed to
+    # allocate a visible one. 0 (a no-op) off Windows.
+    assert kw["creationflags"] == _NO_WINDOW
 
 
 async def test_exec_git_injects_daemon_suppressing_flags(captured_run):
