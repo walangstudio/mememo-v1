@@ -49,6 +49,12 @@ _GIT_SAFE_ENV = {
 # Per-invocation overrides that suppress daemon/helper grandchildren outright.
 _GIT_SAFE_FLAGS = ["-c", "core.fsmonitor=", "-c", "credential.helper="]
 
+# MCP hosts launch this server without a console of their own, so Windows gives
+# every console-subsystem child its own console WINDOW — a command prompt
+# flashing on screen for each git call. Matches the flag the daemon spawns in
+# commands/session_start.py already use. No-op off Windows.
+_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
+
 
 class GitManager:
     """
@@ -100,6 +106,7 @@ class GitManager:
                 # daemon helper can spawn and wedge the captured pipe.
                 stdin=subprocess.DEVNULL,
                 env={**os.environ, **_GIT_SAFE_ENV},
+                creationflags=_NO_WINDOW,
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError as e:

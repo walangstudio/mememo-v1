@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.51.2] - 2026-07-22
+
+### Fixed
+- **A command prompt flashed on screen for every git call.** MCP hosts launch the server from a process with no
+  console of its own, so Windows gave each console-subsystem child (`git`) its own console *window*.
+  `GitManager._exec_git` now passes `CREATE_NO_WINDOW`, matching the flag the background daemon spawns in
+  `commands/session_start.py` already used. No-op off Windows.
+
 ## [0.51.1] - 2026-07-06
 
 ### Fixed
